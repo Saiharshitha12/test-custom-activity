@@ -1,0 +1,41 @@
+{
+  "workflowApiVersion": "1.1",
+  "metaData": {
+    "icon": "images/icon.png",
+    "category": "message"
+  },
+  "type": "REST",
+  "lang": {
+    "en-US": {
+      "name": "Test Script Activity",
+      "description": "Runs script for every contact"
+    }
+  },
+  "arguments": {
+    "execute": {
+      "inArguments": [
+        { "contactKey":   "{{Contact.Key}}"                    },
+        { "mobileNumber": "{{Contact.Attribute.MobileNumber}}" },
+        { "firstName":    "{{Contact.Attribute.FirstName}}"    }
+      ],
+      "outArguments": [],
+      "url": "https://test-custom-activity.onrender.com/execute", ✅ CHANGE
+      "verb": "POST",
+      "timeout": 10000,
+      "retryCount": 2,
+      "retryDelay": 1000
+    }
+  },
+  "configurationArguments": {
+    "save":     { "url": "https://test-custom-activity.onrender.com/save",     "verb": "POST" }, ✅ CHANGE
+    "publish":  { "url": "https://test-custom-activity.onrender.com/publish",  "verb": "POST" }, ✅ CHANGE
+    "validate": { "url": "https://test-custom-activity.onrender.com/validate", "verb": "POST" }  ✅ CHANGE
+  },
+  "userInterfaces": {
+    "configModal": {
+      "url": "https://test-custom-activity.onrender.com/ui", ✅ CHANGE
+      "height": 200,
+      "width": 400
+    }
+  }
+}
