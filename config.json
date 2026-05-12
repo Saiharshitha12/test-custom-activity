@@ -19,7 +19,7 @@
         { "firstName":    "{{Contact.Attribute.FirstName}}"    }
       ],
       "outArguments": [],
-      "url": "https://test-custom-activity.onrender.com/execute", ✅ CHANGE
+      "url": "https://test-custom-activity-uv2l.onrender.com/execute", ✅ CHANGE
       "verb": "POST",
       "timeout": 10000,
       "retryCount": 2,
@@ -27,13 +27,13 @@
     }
   },
   "configurationArguments": {
-    "save":     { "url": "https://test-custom-activity.onrender.com/save",     "verb": "POST" }, ✅ CHANGE
-    "publish":  { "url": "https://test-custom-activity.onrender.com/publish",  "verb": "POST" }, ✅ CHANGE
-    "validate": { "url": "https://test-custom-activity.onrender.com/validate", "verb": "POST" }  ✅ CHANGE
+    "save":     { "url": "https://test-custom-activity-uv2l.onrender.com/save",     "verb": "POST" }, ✅ CHANGE
+    "publish":  { "url": "https://test-custom-activity-uv2l.onrender.com/publish",  "verb": "POST" }, ✅ CHANGE
+    "validate": { "url": "https://test-custom-activity-uv2l.onrender.com/validate", "verb": "POST" }  ✅ CHANGE
   },
   "userInterfaces": {
     "configModal": {
-      "url": "https://test-custom-activity.onrender.com/ui", ✅ CHANGE
+      "url": "https://test-custom-activity-uv2l.onrender.com/ui", ✅ CHANGE
       "height": 200,
       "width": 400
     }
