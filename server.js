@@ -5,7 +5,7 @@ const app = express();
 
 app.use(express.json());
 
-// ✅ THIS serves config.json when SFMC asks for it
+// ✅ Serve config.json
 app.get('/config.json', (req, res) => {
   const configPath = path.join(__dirname, 'config.json');
   const config = fs.readFileSync(configPath, 'utf8');
@@ -32,14 +32,75 @@ app.post('/save',     (req, res) => res.status(200).json({ status: 'ok' }));
 app.post('/publish',  (req, res) => res.status(200).json({ status: 'ok' }));
 app.post('/validate', (req, res) => res.status(200).json({ status: 'ok' }));
 
-// UI shown inside Journey Builder
+// ✅ FIXED UI — properly communicates with Journey Builder
 app.get('/ui', (req, res) => {
   res.send(`
+    <!DOCTYPE html>
     <html>
-    <body style="font-family:Arial; padding:20px;">
-      <h3>Test Custom Activity</h3>
-      <p>✅ Activity is configured</p>
-      <p>Script will run for every contact</p>
+    <head>
+      <style>
+        body { 
+          font-family: Arial; 
+          padding: 20px; 
+          background: #f4f4f4;
+        }
+        .card {
+          background: white;
+          padding: 20px;
+          border-radius: 8px;
+        }
+        h3 { color: #0070d2; }
+        .status {
+          padding: 10px;
+          background: #e8f5e9;
+          border-left: 4px solid #4caf50;
+          margin-top: 15px;
+        }
+        button {
+          margin-top: 20px;
+          padding: 10px 20px;
+          background: #0070d2;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 14px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <h3>Test Custom Activity</h3>
+        <p>This activity runs script for every contact.</p>
+        <p>No email required.</p>
+        <div class="status">
+          ✅ Activity is configured and ready
+        </div>
+        <button onclick="done()">Done</button>
+      </div>
+
+      <script>
+        // ✅ Tell Journey Builder UI is ready
+        window.onload = function() {
+          parent.postMessage(
+            JSON.stringify({ method: 'ready' }), 
+            '*'
+          );
+        };
+
+        // ✅ Tell Journey Builder activity is saved
+        function done() {
+          parent.postMessage(
+            JSON.stringify({ 
+              method: 'save',
+              payload: {
+                name: 'Test Script Activity'
+              }
+            }), 
+            '*'
+          );
+        }
+      </script>
     </body>
     </html>
   `);
