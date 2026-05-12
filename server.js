@@ -13,26 +13,32 @@ app.get('/config.json', (req, res) => {
   res.send(config);
 });
 
-// ✅ EXECUTE — fires for every contact
+// ✅ EXECUTE — fires for every contact in journey
 app.post('/execute', (req, res) => {
-  const args = Object.assign({}, ...req.body.inArguments);
+  try {
+    const args = Object.assign({}, ...req.body.inArguments);
 
-  console.log('=================================');
-  console.log('Contact received from Journey:');
-  console.log('Contact Key  :', args.contactKey);
-  console.log('Mobile       :', args.mobileNumber);
-  console.log('First Name   :', args.firstName);
-  console.log('=================================');
+    console.log('=================================');
+    console.log('Contact received from Journey:');
+    console.log('Contact Key  :', args.contactKey);
+    console.log('Mobile       :', args.mobileNumber);
+    console.log('First Name   :', args.firstName);
+    console.log('=================================');
 
-  return res.status(200).json({ status: 'ok' });
+    return res.status(200).json({ status: 'ok' });
+
+  } catch (err) {
+    console.error('Execute error:', err.message);
+    return res.status(200).json({ status: 'error' });
+  }
 });
 
-// Required lifecycle endpoints
+// ✅ Required lifecycle endpoints
 app.post('/save',     (req, res) => res.status(200).json({ status: 'ok' }));
 app.post('/publish',  (req, res) => res.status(200).json({ status: 'ok' }));
 app.post('/validate', (req, res) => res.status(200).json({ status: 'ok' }));
 
-// ✅ FIXED UI — properly communicates with Journey Builder
+// ✅ UI shown inside Journey Builder
 app.get('/ui', (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -42,29 +48,21 @@ app.get('/ui', (req, res) => {
         body { 
           font-family: Arial; 
           padding: 20px; 
-          background: #f4f4f4;
+          background: #f4f4f4; 
         }
-        .card {
-          background: white;
-          padding: 20px;
-          border-radius: 8px;
+        .card { 
+          background: white; 
+          padding: 20px; 
+          border-radius: 8px; 
         }
-        h3 { color: #0070d2; }
+        h3 { 
+          color: #0070d2; 
+        }
         .status {
           padding: 10px;
           background: #e8f5e9;
           border-left: 4px solid #4caf50;
           margin-top: 15px;
-        }
-        button {
-          margin-top: 20px;
-          padding: 10px 20px;
-          background: #0070d2;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 14px;
         }
       </style>
     </head>
@@ -76,30 +74,45 @@ app.get('/ui', (req, res) => {
         <div class="status">
           ✅ Activity is configured and ready
         </div>
-        <button onclick="done()">Done</button>
       </div>
 
       <script>
-        // ✅ Tell Journey Builder UI is ready
+        // ✅ Listen for messages from Journey Builder
+        window.addEventListener('message', function(event) {
+          try {
+            var data = JSON.parse(event.data);
+
+            // Journey Builder sends init — we respond ready
+            if (data.method === 'init') {
+              event.source.postMessage(
+                JSON.stringify({ method: 'ready' }),
+                event.origin
+              );
+            }
+
+            // Journey Builder asks to save — we respond
+            if (data.method === 'save') {
+              event.source.postMessage(
+                JSON.stringify({
+                  method: 'save',
+                  payload: {}
+                }),
+                event.origin
+              );
+            }
+
+          } catch(e) {
+            console.log('Message error:', e);
+          }
+        });
+
+        // ✅ Also notify on load
         window.onload = function() {
           parent.postMessage(
-            JSON.stringify({ method: 'ready' }), 
+            JSON.stringify({ method: 'ready' }),
             '*'
           );
         };
-
-        // ✅ Tell Journey Builder activity is saved
-        function done() {
-          parent.postMessage(
-            JSON.stringify({ 
-              method: 'save',
-              payload: {
-                name: 'Test Script Activity'
-              }
-            }), 
-            '*'
-          );
-        }
       </script>
     </body>
     </html>
