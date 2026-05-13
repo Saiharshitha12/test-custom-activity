@@ -5,7 +5,6 @@ const app = express();
 
 app.use(express.json());
 
-// ✅ Serve config.json
 app.get('/config.json', (req, res) => {
   const configPath = path.join(__dirname, 'config.json');
   const config = fs.readFileSync(configPath, 'utf8');
@@ -13,7 +12,6 @@ app.get('/config.json', (req, res) => {
   res.send(config);
 });
 
-// ✅ EXECUTE — fires for every contact in journey
 app.post('/execute', (req, res) => {
   try {
     const args = Object.assign({}, ...req.body.inArguments);
@@ -33,7 +31,6 @@ app.post('/execute', (req, res) => {
   }
 });
 
-// ✅ SAVE — called when Done is clicked
 app.post('/save', (req, res) => {
   console.log('Save called');
   res.status(200).json({
@@ -47,23 +44,16 @@ app.post('/save', (req, res) => {
   });
 });
 
-// ✅ PUBLISH — called when Journey activates
 app.post('/publish', (req, res) => {
   console.log('Publish called');
-  res.status(200).json({
-    status: 'ok'
-  });
+  res.status(200).json({ status: 'ok' });
 });
 
-// ✅ VALIDATE — called before activation
 app.post('/validate', (req, res) => {
   console.log('Validate called');
-  res.status(200).json({
-    status: 'ok'
-  });
+  res.status(200).json({ status: 'ok' });
 });
 
-// ✅ UI shown inside Journey Builder
 app.get('/ui', (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -80,9 +70,7 @@ app.get('/ui', (req, res) => {
           padding: 20px; 
           border-radius: 8px; 
         }
-        h3 { 
-          color: #0070d2; 
-        }
+        h3 { color: #0070d2; }
         .status {
           padding: 10px;
           background: #e8f5e9;
@@ -102,13 +90,30 @@ app.get('/ui', (req, res) => {
       </div>
 
       <script>
+        // ✅ Send ready immediately and keep retrying
+        function sendReady() {
+          parent.postMessage(
+            JSON.stringify({ method: 'ready' }),
+            '*'
+          );
+        }
+
+        // Send ready every 500ms for 5 seconds
+        var count = 0;
+        var interval = setInterval(function() {
+          sendReady();
+          count++;
+          if (count >= 10) {
+            clearInterval(interval);
+          }
+        }, 500);
+
         // ✅ Listen for messages from Journey Builder
         window.addEventListener('message', function(event) {
           try {
             var data = JSON.parse(event.data);
             console.log('Message from JB:', data);
 
-            // Journey Builder sends init — we respond ready
             if (data.method === 'init') {
               event.source.postMessage(
                 JSON.stringify({ method: 'ready' }),
@@ -116,7 +121,6 @@ app.get('/ui', (req, res) => {
               );
             }
 
-            // Journey Builder asks to save — we respond
             if (data.method === 'save') {
               event.source.postMessage(
                 JSON.stringify({
@@ -131,14 +135,6 @@ app.get('/ui', (req, res) => {
             console.log('Message error:', e);
           }
         });
-
-        // ✅ Notify Journey Builder on load
-        window.onload = function() {
-          parent.postMessage(
-            JSON.stringify({ method: 'ready' }),
-            '*'
-          );
-        };
       </script>
     </body>
     </html>
