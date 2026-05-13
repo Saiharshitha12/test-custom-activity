@@ -33,10 +33,35 @@ app.post('/execute', (req, res) => {
   }
 });
 
-// ✅ Required lifecycle endpoints
-app.post('/save',     (req, res) => res.status(200).json({ status: 'ok' }));
-app.post('/publish',  (req, res) => res.status(200).json({ status: 'ok' }));
-app.post('/validate', (req, res) => res.status(200).json({ status: 'ok' }));
+// ✅ SAVE — called when Done is clicked
+app.post('/save', (req, res) => {
+  console.log('Save called');
+  res.status(200).json({
+    status: 'ok',
+    arguments: {
+      execute: {
+        inArguments: req.body.arguments?.execute?.inArguments || [],
+        outArguments: []
+      }
+    }
+  });
+});
+
+// ✅ PUBLISH — called when Journey activates
+app.post('/publish', (req, res) => {
+  console.log('Publish called');
+  res.status(200).json({
+    status: 'ok'
+  });
+});
+
+// ✅ VALIDATE — called before activation
+app.post('/validate', (req, res) => {
+  console.log('Validate called');
+  res.status(200).json({
+    status: 'ok'
+  });
+});
 
 // ✅ UI shown inside Journey Builder
 app.get('/ui', (req, res) => {
@@ -81,6 +106,7 @@ app.get('/ui', (req, res) => {
         window.addEventListener('message', function(event) {
           try {
             var data = JSON.parse(event.data);
+            console.log('Message from JB:', data);
 
             // Journey Builder sends init — we respond ready
             if (data.method === 'init') {
@@ -106,7 +132,7 @@ app.get('/ui', (req, res) => {
           }
         });
 
-        // ✅ Also notify on load
+        // ✅ Notify Journey Builder on load
         window.onload = function() {
           parent.postMessage(
             JSON.stringify({ method: 'ready' }),
